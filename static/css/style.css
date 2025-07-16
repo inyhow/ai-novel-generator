@@ -1,0 +1,247 @@
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2980b9;
+    --background-color: #f8f9fa;
+    --sidebar-bg: #ffffff;
+    --content-bg: #ffffff;
+    --text-color: #333333;
+    --border-color: #e0e0e0;
+    --success-color: #2ecc71;
+    --error-color: #e74c3c;
+    --font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* 左侧面板 */
+.sidebar {
+    width: 400px;
+    background-color: var(--sidebar-bg);
+    padding: 20px;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    font-size: 24px;
+}
+
+.control-section {
+    margin-bottom: 20px;
+}
+
+.control-section h3 {
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.radio-group {
+    display: flex;
+    gap: 15px;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.radio-label input {
+    margin-right: 5px;
+}
+
+.prompt-examples {
+    margin-top: 10px;
+    background-color: rgba(52, 152, 219, 0.1);
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.prompt-examples h4 {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.prompt-examples ul {
+    list-style-type: none;
+}
+
+.prompt-examples li {
+    padding: 5px 0;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--primary-color);
+}
+
+.prompt-examples li:hover {
+    text-decoration: underline;
+}
+
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+}
+
+.loading {
+    display: none;
+    text-align: center;
+    margin-top: 20px;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* 右侧内容面板 */
+.content-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--content-bg);
+    overflow: hidden;
+}
+
+.content-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.content-header h2 {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.content-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.chapter-list {
+    width: 250px;
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+}
+
+.chapter-item {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.chapter-item:hover {
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+.chapter-item.active {
+    background-color: rgba(52, 152, 219, 0.1);
+    border-left: 3px solid var(--primary-color);
+}
+
+.chapter-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.chapter-word-count {
+    font-size: 12px;
+    color: #777;
+}
+
+.chapter-status {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.status-indicator.success {
+    background-color: var(--success-color);
+}
+
+.status-indicator.error {
+    background-color: var(--error-color);
+}
+
+.chapter-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.chapter-text {
+    white-space: pre-wrap;
+    line-height: 1.8;
+}
+
+.error {
+    color: var(--error-color);
+    padding: 10px;
+    border: 1px solid var(--error-color);
+    border-radius: 4px;
+    margin-top: 10px;
+}

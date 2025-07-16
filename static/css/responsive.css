@@ -1,0 +1,75 @@
+/* 平板电脑布局 */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 300px;
+    }
+    
+    .chapter-list {
+        width: 200px;
+    }
+}
+
+/* 手机布局 */
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        height: auto;
+        max-height: none;
+        overflow-y: visible;
+    }
+    
+    .content-panel {
+        height: 100vh;
+    }
+    
+    .content-body {
+        flex-direction: column;
+    }
+    
+    .chapter-list {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        max-height: 200px;
+    }
+    
+    .chapter-content {
+        height: calc(100vh - 270px);
+    }
+    
+    .radio-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* 小手机布局 */
+@media (max-width: 480px) {
+    .sidebar h1 {
+        font-size: 20px;
+    }
+    
+    .btn {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+    
+    .control-section h3 {
+        font-size: 14px;
+    }
+    
+    .content-header h2 {
+        font-size: 18px;
+    }
+    
+    .chapter-item {
+        padding: 10px;
+    }
+}

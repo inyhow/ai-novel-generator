@@ -1,0 +1,83 @@
+# Environment variables (敏感信息)
+.env
+*.env.local
+*.env.production
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Logs (可能包含敏感信息)
+logs/
+*.log
+*.log.*
+
+# Cache (API响应缓存，可能包含内容)
+cache/
+*.json
+
+# IDE配置
+.vscode/
+.idea/
+*.swp
+*.swo
+.vscode/settings.json
+
+# OS生成的文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Virtual environment
+venv/
+env/
+.venv/
+.env/
+ENV/
+env.bak/
+venv.bak/
+
+# PyInstaller构建文件
+build/
+dist/
+*.spec
+*.manifest
+*.exe
+
+# Release包 (太大，不适合Git)
+release/
+*.zip
+*.tar.gz
+*.rar
+
+# 测试文件和临时文件
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+
+# 配置文件备份
+config.bak
+*.conf.bak
+
+# 其他敏感或大文件
+*.key
+*.pem
+*.p12
+*.pfx
+node_modules/
+.pytest_cache/

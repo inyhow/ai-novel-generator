@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI 小说创作</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #9ca3af;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+<aside class="w-1/4 bg-white border-r border-slate-200 p-6 flex flex-col space-y-6 overflow-y-auto custom-scrollbar">
+<div>
+<h2 class="text-lg font-semibold text-slate-700 mb-1">小说起手工具</h2>
+<p class="text-sm text-slate-500">让 AI 写出你的精彩故事</p>
+</div>
+<div class="flex-grow space-y-6">
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1" for="reference-text">参考文本</label>
+<textarea class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm placeholder-slate-400" id="reference-text" placeholder="粘贴参考小说片段，AI 将分析其写作风格..." rows="4"></textarea>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1" for="novel-type">创建小说</label>
+<select class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm" id="novel-type">
+<option selected="">霸道女文爱上我</option>
+<option>都市传说</option>
+<option>科幻未来</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1" for="novel-genre">小说类型</label>
+<div class="flex items-center space-x-2">
+<input class="flex-grow p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm" id="novel-genre" type="text" value="玄幻、爱情、都市"/>
+<button class="p-2 text-slate-500 hover:text-indigo-600">
+<span class="material-icons text-xl">tune</span>
+</button>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1" for="background-story">背景故事</label>
+<textarea class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm placeholder-slate-400" id="background-story" placeholder="描述你的故事背景..." rows="6">45 岁的我，家庭不幸、老公出轨、孩子嫌弃、公司下岗，去寺庙上香哭诉的时候，被方丈爱上了，这个刚当上方丈的 30 岁的男人，其实是正峰集团董事长的儿子，而这个董事长，就是扫地僧</textarea>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-1" for="features">特色亮点</label>
+<textarea class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm placeholder-slate-400" id="features" placeholder="你的故事有什么特别之处？" rows="4">就是以现代社会的背景、但是人物都是玄幻修仙人物，阐述了一段跌宕起伏的爱情故事</textarea>
+</div>
+</div>
+<button id="generate-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 transition duration-150 ease-in-out">
+  生成结构
+</button>
+</aside>
+<main class="flex-1 p-8 overflow-y-auto custom-scrollbar">
+<div class="max-w-3xl mx-auto">
+<h1 class="text-2xl font-bold text-slate-800 mb-8">我的小说</h1>
+<div class="space-y-6">
+<div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+<div class="flex justify-between items-center mb-3">
+<h2 class="text-xl font-semibold text-slate-700">第1章：日常生活中不宁</h2>
+<div class="flex items-center space-x-3 text-sm text-slate-500">
+<span>953 字</span>
+<button class="text-green-500 hover:text-green-600 flex items-center">
+<span class="material-icons text-lg mr-1">edit</span> 扩写
+              </button>
+<button class="text-slate-500 hover:text-slate-600">
+<span class="material-icons text-lg">delete</span>
+</button>
+</div>
+</div>
+<p class="text-slate-600 leading-relaxed text-sm">
+            ## 第十三章：窗外的邂逅 蓝色天空下，阳光轻柔地洒在小巷子里。曲安安空空的心情就像这天气一样，轻松愉悦似乎要飞起来。她的手机铃声突然响起，打破了这个宁静，一瞬？安安”电话那头是她最好闺蜜小雨的声音，喂，是我！你怎么突然打电话给我？安安一边走一边问，脚下不自觉地加快了脚步。“你还在学校吗？我刚看见你男朋友了！他竟然跟一个女生在校门口说笑，你不是觉得奇怪吗？小雨的话语里充满了八卦的味道。安安的心猛地漏了一拍，她停下脚步，脑海中闪过男友那张笑脸。“真的假的？他今天不是说有事吗？“你怎么会看？我还拍了照，你要看吗？小雨的声音里带上了几分戏谑。安安犹豫了一下，但好奇心最终占了上风。“发给我吧。”几秒钟后，手机屏幕上出现了一张照片：她的男友正和一个陌生女孩站在校门口，两人看起来很亲密。安安的心瞬间凉了半截。她深吸一口气，决定去一探究竟。来到校门口，安安远远地就看见照片上正在说话的身影。她的脚步变得沉重，每一步都像踩在棉花上。“安安！”男友首先发现了她，脸上露出惊喜。“你怎么来了？”安安强装镇定，挤…其实是来催着。她努力让自己不显得太失态。那个女孩转过身来，看到安安，惊奇地张大了嘴。“就是安安吗？天啊，我听说了你好多个事！”“你是谁？”安安不解地看着她。“我是小玲，安安的同学，她最崇拜…我刚才和他说我们班里的趣事，安安，我可不是你的粉丝哦！”安安的心情瞬间从阴云密布转为晴空万里。她笑了，原来是这样。她还以为。她的语音未落，男友已经走上前来，搂住了她的肩膀。“安安，你怎么这么可爱啊？”他宠溺地捏了捏她的脸。“我最喜欢你啊，傻瓜。”是啊，安安，你真是个傻瓜。小玲在旁边笑着。安安的心彻底被一股暖流…好了好了，别闹了。你们两个，真的闪瞎我了”一旁…三人相视一笑，空气中充满了轻松愉快的气氛。安安知道，今天她和男友的关系又上一个小台阶。虽然是误会，但也让她明白珍惜更进一步。“走吧，安安建议，我们去吃冰淇淋吧。我请客！”在炎热的盛夏，三人一边吃着冰淇淋，一边聊着天。安安感觉到自己在恋爱中的安全性又增加了一分。她想，这就是青春的美好吧。
+          </p>
+</div>
+<div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+<div class="flex justify-between items-center">
+<h2 class="text-xl font-semibold text-slate-700">第2章：冒险的召唤</h2>
+<div class="flex items-center space-x-3 text-sm text-slate-500">
+<span>600 字</span>
+<button class="text-green-500 hover:text-green-600 flex items-center">
+<span class="material-icons text-lg mr-1">edit</span> 扩写
+              </button>
+<button class="text-slate-500 hover:text-slate-600">
+<span class="material-icons text-lg">delete</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+<div class="flex justify-between items-center">
+<h2 class="text-xl font-semibold text-slate-700">第3章：拒绝召唤</h2>
+<div class="flex items-center space-x-3 text-sm text-slate-500">
+<span>700 字</span>
+<button class="text-green-500 hover:text-green-600 flex items-center">
+<span class="material-icons text-lg mr-1">edit</span> 扩写
+              </button>
+<button class="text-slate-500 hover:text-slate-600">
+<span class="material-icons text-lg">delete</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+<div class="flex justify-between items-center">
+<h2 class="text-xl font-semibold text-slate-700">第4章：遇见导师</h2>
+<div class="flex items-center space-x-3 text-sm text-slate-500">
+<span>750 字</span>
+<button class="text-green-500 hover:text-green-600 flex items-center">
+<span class="material-icons text-lg mr-1">edit</span> 扩写
+              </button>
+<button class="text-slate-500 hover:text-slate-600">
+<span class="material-icons text-lg">delete</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+<div class="flex justify-between items-center">
+<h2 class="text-xl font-semibold text-slate-700">第5章：跨越门槛</h2>
+<div class="flex items-center space-x-3 text-sm text-slate-500">
+<span>800 字</span>
+<button class="text-green-500 hover:text-green-600 flex items-center">
+<span class="material-icons text-lg mr-1">edit</span> 扩写
+              </button>
+<button class="text-slate-500 hover:text-slate-600">
+<span class="material-icons text-lg">delete</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+<div class="flex justify-between items-center">
+<h2 class="text-xl font-semibold text-slate-700">第6章：考验、盟友和敌人</h2>
+<div class="flex items-center space-x-3 text-sm text-slate-500">
+<span>900 字</span>
+<button class="text-green-500 hover:text-green-600 flex items-center">
+<span class="material-icons text-lg mr-1">edit</span> 扩写
+              </button>
+<button class="text-slate-500 hover:text-slate-600">
+<span class="material-icons text-lg">delete</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+<div class="flex justify-between items-center">
+<h2 class="text-xl font-semibold text-slate-700">第7章：接近最深洞穴</h2>
+<div class="flex items-center space-x-3 text-sm text-slate-500">
+<span>850 字</span>
+<button class="text-green-500 hover:text-green-600 flex items-center">
+<span class="material-icons text-lg mr-1">edit</span> 扩写
+              </button>
+<button class="text-slate-500 hover:text-slate-600">
+<span class="material-icons text-lg">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+document.getElementById('generate-btn').addEventListener('click', async function() {
+  try {
+    // 获取表单数据
+    const prompt = document.getElementById('background-story').value;
+    const genre = document.getElementById('novel-type').value;
+    const features = document.getElementById('features').value;
+
+    // 组合提示词
+    const fullPrompt = `背景故事：${prompt}\n特色亮点：${features}`;
+
+    // 显示加载状态
+    this.disabled = true;
+    this.textContent = '生成中...';
+
+    // 发送请求到后端
+    const response = await fetch('/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: fullPrompt,
+        mode: 'generate',
+        genre: genre
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // 清空现有内容
+      const mainContent = document.querySelector('main .space-y-6');
+      mainContent.innerHTML = '';
+
+      // 添加标题
+      const titleElem = document.createElement('h1');
+      titleElem.className = 'text-2xl font-bold text-slate-800 mb-8';
+      titleElem.textContent = data.title;
+      mainContent.appendChild(titleElem);
+
+      // 添加章节
+      data.chapters.forEach((chapter, index) => {
+        const chapterDiv = document.createElement('div');
+        chapterDiv.className = 'bg-white p-6 rounded-lg shadow-sm border border-slate-200';
+        chapterDiv.innerHTML = `
+          <div class="flex justify-between items-center mb-3">
+            <h2 class="text-xl font-semibold text-slate-700">${chapter.title}</h2>
+            <div class="flex items-center space-x-3 text-sm text-slate-500">
+              <span class="word-count">${chapter.content.length} 字</span>
+              <button class="expand-btn text-green-500 hover:text-green-600 flex items-center" data-chapter-index="${index}">
+                <span class="material-icons text-lg mr-1">edit</span> 扩写
+              </button>
+              <button class="delete-btn text-slate-500 hover:text-slate-600" data-chapter-index="${index}">
+                <span class="material-icons text-lg">delete</span>
+              </button>
+            </div>
+          </div>
+          <div class="chapter-content text-slate-600 leading-relaxed text-sm">${formatChapterContent(chapter.content)}</div>
+        `;
+        
+        // 添加扩写按钮事件
+        const expandBtn = chapterDiv.querySelector('.expand-btn');
+        expandBtn.addEventListener('click', async function() {
+          await expandChapter(index, chapter.title, chapter.content, this);
+        });
+        
+        // 添加删除按钮事件
+        const deleteBtn = chapterDiv.querySelector('.delete-btn');
+        deleteBtn.addEventListener('click', function() {
+          if (confirm('确定要删除这个章节吗？')) {
+            chapterDiv.remove();
+          }
+        });
+        
+        mainContent.appendChild(chapterDiv);
+      });
+    } else {
+      alert('生成失败：' + data.error);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('生成失败，请检查网络连接或重试');
+  } finally {
+    // 恢复按钮状态
+    this.disabled = false;
+    this.textContent = '生成结构';
+  }
+});
+
+// 扩写章节功能
+async function expandChapter(chapterIndex, chapterTitle, chapterContent, buttonElement) {
+  try {
+    // 显示加载状态
+    const originalText = buttonElement.innerHTML;
+    buttonElement.innerHTML = '<span class="material-icons text-lg mr-1 animate-spin">refresh</span> 扩写中...';
+    buttonElement.disabled = true;
+
+    // 发送扩写请求
+    const response = await fetch('/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: `${chapterTitle}\n\n${chapterContent}`,
+        mode: 'expand'
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success && data.chapters && data.chapters.length > 0) {
+      // 更新章节内容
+      const chapterDiv = buttonElement.closest('.bg-white');
+      const contentElement = chapterDiv.querySelector('.chapter-content');
+      const wordCountElement = chapterDiv.querySelector('.word-count');
+      
+      const expandedContent = data.chapters[0].content;
+      contentElement.innerHTML = formatChapterContent(expandedContent);
+      wordCountElement.textContent = `${expandedContent.length} 字`;
+      
+      // 显示成功提示
+      showNotification('章节扩写成功！', 'success');
+    } else {
+      showNotification('扩写失败：' + (data.error || '未知错误'), 'error');
+    }
+  } catch (error) {
+    console.error('扩写错误:', error);
+    showNotification('扩写失败，请检查网络连接', 'error');
+  } finally {
+    // 恢复按钮状态
+    buttonElement.innerHTML = '<span class="material-icons text-lg mr-1">edit</span> 扩写';
+    buttonElement.disabled = false;
+  }
+}
+
+// 格式化章节内容
+function formatChapterContent(content) {
+  if (!content) return '';
+  
+  // 清理内容，移除多余的空白字符
+  let formatted = content.trim();
+  
+  // 处理特殊格式标记（如果有的话）
+  formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-slate-700">$1</strong>');
+  formatted = formatted.replace(/\*(.*?)\*/g, '<em class="italic text-slate-600">$1</em>');
+  
+  // 将连续的空行替换为单个空行
+  formatted = formatted.replace(/\n\s*\n\s*\n/g, '\n\n');
+  
+  // 按段落分割内容
+  const paragraphs = formatted.split(/\n\s*\n/);
+  
+  // 格式化每个段落
+  const formattedParagraphs = paragraphs.map((paragraph, index) => {
+    paragraph = paragraph.trim();
+    if (!paragraph) return '';
+    
+    // 移除段落内的多余空格和换行，但保留必要的空格
+    paragraph = paragraph.replace(/\s+/g, ' ');
+    
+    // 检查是否是对话段落（包含引号）
+    const isDialogue = paragraph.includes('"') || paragraph.includes('"') || paragraph.includes('"') || paragraph.includes('「') || paragraph.includes('」');
+    
+    // 检查是否是章节标题或小标题
+    const isSubtitle = paragraph.match(/^第.{1,3}章|^[一二三四五六七八九十]+、|^\d+\./);
+    
+    if (isSubtitle) {
+      // 小标题样式
+      return `<h3 class="mb-3 mt-6 text-lg font-semibold text-slate-800 border-l-4 border-indigo-500 pl-3">${paragraph}</h3>`;
+    } else if (isDialogue) {
+      // 对话段落样式 - 稍微突出显示
+      return `<p class="mb-4 text-justify leading-7 pl-6 border-l-2 border-slate-200 text-slate-700">${paragraph}</p>`;
+    } else {
+      // 普通段落样式 - 首行缩进
+      return `<p class="mb-4 text-justify leading-7 indent-8 text-slate-600">${paragraph}</p>`;
+    }
+  }).filter(p => p); // 过滤空段落
+  
+  return formattedParagraphs.join('');
+}
+
+// 显示通知
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+    type === 'success' ? 'bg-green-500 text-white' : 
+    type === 'error' ? 'bg-red-500 text-white' : 
+    'bg-blue-500 text-white'
+  }`;
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  
+  // 3秒后自动消失
+  setTimeout(() => {
+    notification.remove();
+  }, 3000);
+}
+</script>
+</body>
+</html>
