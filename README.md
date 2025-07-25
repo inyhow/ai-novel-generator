@@ -5,6 +5,7 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 一个基于OpenRouter API的智能小说生成器，支持多种AI模型，具备章节扩写、内容格式化等高级功能。
+![产品图](static/img/product.jpg)
 
 ## ✨ 功能特点
 
