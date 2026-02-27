@@ -1,119 +1,238 @@
-import os
-import aiohttp
-import logging
+﻿import asyncio
 import json
-import asyncio
-from dotenv import load_dotenv
+import logging
+import os
 from pathlib import Path
-from .cache import get_cached_response, cache_response
 
-# 配置日志
-logging.basicConfig(level=logging.DEBUG)
+import aiohttp
+from dotenv import load_dotenv
+
+import config
+from .cache import cache_response, get_cached_response
+
 logger = logging.getLogger(__name__)
+load_dotenv(Path(__file__).parent.parent / ".env")
 
-# 加载环境变量 - 确保从正确的路径加载
-dotenv_path = Path(__file__).parent.parent / '.env'
-load_dotenv(dotenv_path)
 
-async def generate_content(model: dict, prompt: str) -> str:
-    """
-    使用 OpenRouter API 生成内容
-    """
-    # 检查缓存
-    cached_content = get_cached_response(prompt, model["id"])
-    if cached_content:
-        logger.info("使用缓存的响应")
-        return cached_content
-    
-    api_key = os.getenv("OPENROUTER_API_KEY")
+def _build_endpoint(provider: str, model: dict) -> tuple[str, dict]:
+    if provider == "newapi":
+        api_base = (model.get("api_base") or os.getenv("NEWAPI_BASE_URL") or "").strip()
+        api_key = (os.getenv("NEWAPI_API_KEY") or "").strip()
+        if not api_base:
+            raise ValueError("NEWAPI_BASE_URL is not set")
+        if not api_key:
+            raise ValueError("NEWAPI_API_KEY is not set")
+
+        endpoint = f"{api_base.rstrip('/')}/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+        return endpoint, headers
+
+    if provider == "google":
+        api_base = (model.get("api_base") or os.getenv("GOOGLE_API_BASE") or "https://generativelanguage.googleapis.com/v1beta").strip()
+        api_key = (os.getenv("GOOGLE_API_KEY") or "").strip()
+        if not api_key:
+            raise ValueError("GOOGLE_API_KEY is not set")
+        model_id = model.get("id", "").strip()
+        if not model_id:
+            raise ValueError("google model id is empty")
+        endpoint = f"{api_base.rstrip('/')}/models/{model_id}:generateContent?key={api_key}"
+        headers = {"Content-Type": "application/json"}
+        return endpoint, headers
+
+    if provider == "anthropic":
+        api_base = (model.get("api_base") or os.getenv("ANTHROPIC_API_BASE") or "https://api.anthropic.com/v1").strip()
+        api_key = (os.getenv("ANTHROPIC_API_KEY") or "").strip()
+        if not api_key:
+            raise ValueError("ANTHROPIC_API_KEY is not set")
+        endpoint = f"{api_base.rstrip('/')}/messages"
+        headers = {
+            "x-api-key": api_key,
+            "anthropic-version": "2023-06-01",
+            "Content-Type": "application/json",
+        }
+        return endpoint, headers
+
+    api_key = (os.getenv("OPENROUTER_API_KEY") or "").strip()
     if not api_key:
-        logger.error("未找到 OPENROUTER_API_KEY 环境变量，请检查 .env 文件")
-        raise ValueError(f"未找到 OPENROUTER_API_KEY 环境变量，已尝试从 {dotenv_path} 加载")
-
-    # 调试输出API密钥的前几个字符，用于确认是否正确加载
-    logger.debug(f"API密钥前10个字符: {api_key[:10]}...")
-    
+        raise ValueError("OPENROUTER_API_KEY is not set")
+    endpoint = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "HTTP-Referer": "http://localhost:8000",
-        "X-Title": "Novel Generator",
-        "Content-Type": "application/json"
+        "X-Title": "AI Novel Generator",
+        "Content-Type": "application/json",
     }
+    return endpoint, headers
 
-    data = {
-        "model": model["id"],
-        "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 4000,
-        "temperature": 0.7,
-        "top_p": 0.9,
-        "stream": False
-    }
 
-    logger.info(f"开始调用 OpenRouter API，模型：{model['id']}")
-    logger.debug(f"请求数据: {data}")
+async def check_model_connection(model: dict) -> tuple[bool, str]:
+    """Lightweight connectivity check for a model endpoint."""
+    provider = model.get("provider", "openrouter")
+    model_id = model["id"]
+    endpoint, headers = _build_endpoint(provider, model)
+    if provider == "google":
+        payload = {
+            "contents": [{"role": "user", "parts": [{"text": "ping"}]}],
+            "generationConfig": {"temperature": 0, "maxOutputTokens": 16},
+        }
+    elif provider == "anthropic":
+        payload = {
+            "model": model_id,
+            "max_tokens": 16,
+            "temperature": 0,
+            "messages": [{"role": "user", "content": "ping"}],
+        }
+    else:
+        payload = {
+            "model": model_id,
+            "messages": [{"role": "user", "content": "ping"}],
+            "max_tokens": 8,
+            "temperature": 0,
+            "stream": False,
+        }
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                endpoint,
+                headers=headers,
+                json=payload,
+                timeout=min(20, config.REQUEST_TIMEOUT),
+            ) as resp:
+                text = await resp.text()
+                if resp.status != 200:
+                    return False, f"HTTP {resp.status}: {text[:120]}"
+                data = await resp.json()
+                if provider == "google":
+                    candidates = data.get("candidates") or []
+                    if not candidates:
+                        return False, "No candidates in response"
+                elif provider == "anthropic":
+                    blocks = data.get("content") or []
+                    if not blocks:
+                        return False, "No content blocks in response"
+                else:
+                    choices = data.get("choices") or []
+                    if not choices:
+                        return False, "No choices in response"
+                return True, "ok"
+    except Exception as exc:
+        return False, str(exc)
 
-    # 重试逻辑
-    max_retries = 3
-    for attempt in range(max_retries):
+
+async def generate_content(model: dict, prompt: str) -> str | None:
+    provider = model.get("provider", "openrouter")
+    model_id = model["id"]
+    cache_model_id = f"{provider}:{model_id}:{model.get('api_base', '')}"
+
+    cached = get_cached_response(prompt, cache_model_id)
+    if cached:
+        logger.info("Using cached response")
+        return cached
+
+    endpoint, headers = _build_endpoint(provider, model)
+    if provider == "google":
+        payload = {
+            "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "temperature": config.TEMPERATURE,
+                "topP": config.TOP_P,
+                "maxOutputTokens": config.MAX_TOKENS,
+            },
+        }
+    elif provider == "anthropic":
+        payload = {
+            "model": model_id,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": config.TEMPERATURE,
+            "max_tokens": config.MAX_TOKENS,
+        }
+    else:
+        payload = {
+            "model": model_id,
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": config.MAX_TOKENS,
+            "temperature": config.TEMPERATURE,
+            "top_p": config.TOP_P,
+            "stream": False,
+        }
+
+    last_error = ""
+    for attempt in range(config.MAX_RETRIES):
         try:
+            req_payload = dict(payload)
+            # On retries, lower output budget to improve completion stability on some providers.
+            if attempt > 0:
+                if provider == "google":
+                    gc = dict(req_payload.get("generationConfig") or {})
+                    gc["maxOutputTokens"] = max(512, int(config.MAX_TOKENS / (attempt + 1)))
+                    req_payload["generationConfig"] = gc
+                elif provider == "anthropic":
+                    req_payload["max_tokens"] = max(512, int(config.MAX_TOKENS / (attempt + 1)))
+                else:
+                    req_payload["max_tokens"] = max(512, int(config.MAX_TOKENS / (attempt + 1)))
             async with aiohttp.ClientSession() as session:
                 async with session.post(
-                    "https://openrouter.ai/api/v1/chat/completions",
+                    endpoint,
                     headers=headers,
-                    json=data,
-                    timeout=60
-                ) as response:
-                    response_text = await response.text()
-                    logger.debug(f"API响应状态码: {response.status}")
-                    logger.debug(f"API响应内容: {response_text[:200]}")
-
-                    if response.status != 200:
-                        if attempt < max_retries - 1:
-                            logger.warning(f"API调用失败 (尝试 {attempt + 1}/{max_retries})，状态码: {response.status}")
-                            await asyncio.sleep(2 ** attempt)  # 指数退避
-                            continue
-                        else:
-                            error_msg = f"API调用失败，状态码: {response.status}, 响应: {response_text}"
-                            logger.error(error_msg)
-                            return None
-
-                    try:
-                        response_json = await response.json()
-                        if not response_json.get('choices'):
-                            logger.error(f"API响应缺少choices字段: {response_json}")
-                            return None
-                            
-                        content = response_json['choices'][0]['message']['content']
-                        logger.info("成功获取API响应")
-                        
-                        # 缓存响应
-                        cache_response(prompt, model["id"], content.strip())
-                        
-                        return content.strip()
-                    except (KeyError, json.JSONDecodeError) as e:
-                        if attempt < max_retries - 1:
-                            logger.warning(f"解析API响应失败 (尝试 {attempt + 1}/{max_retries}): {str(e)}")
+                    json=req_payload,
+                    timeout=config.REQUEST_TIMEOUT,
+                ) as resp:
+                    text = await resp.text()
+                    if resp.status != 200:
+                        last_error = f"HTTP {resp.status}: {text[:300]}"
+                        if attempt < config.MAX_RETRIES - 1:
                             await asyncio.sleep(2 ** attempt)
                             continue
-                        else:
-                            logger.error(f"解析API响应失败: {str(e)}")
-                            return None
+                        logger.error("LLM API error %s: %s", resp.status, text)
+                        raise RuntimeError(last_error)
 
-        except aiohttp.ClientError as e:
-            if attempt < max_retries - 1:
-                logger.warning(f"API请求失败 (尝试 {attempt + 1}/{max_retries}): {str(e)}")
+                    data = await resp.json()
+                    if provider == "google":
+                        candidates = data.get("candidates") or []
+                        if not candidates:
+                            logger.error("Invalid Google API response: %s", json.dumps(data)[:300])
+                            return None
+                        parts = (((candidates[0] or {}).get("content") or {}).get("parts") or [])
+                        content = "\n".join([str((p or {}).get("text", "")).strip() for p in parts if (p or {}).get("text")]).strip()
+                    elif provider == "anthropic":
+                        blocks = data.get("content") or []
+                        texts = [str((b or {}).get("text", "")).strip() for b in blocks if (b or {}).get("type") == "text"]
+                        content = "\n".join([t for t in texts if t]).strip()
+                    else:
+                        choices = data.get("choices") or []
+                        if not choices:
+                            logger.error("Invalid API response: %s", json.dumps(data)[:300])
+                            return None
+                        content = choices[0]["message"]["content"].strip()
+                    if not content:
+                        finish_reason = ""
+                        if provider not in {"google", "anthropic"}:
+                            choices = data.get("choices") or []
+                            finish_reason = str((choices[0] or {}).get("finish_reason", "")) if choices else ""
+                        last_error = f"empty_content provider={provider} finish_reason={finish_reason}".strip()
+                        logger.error("Empty content from provider=%s: %s", provider, json.dumps(data)[:300])
+                        if attempt < config.MAX_RETRIES - 1:
+                            await asyncio.sleep(2 ** attempt)
+                            continue
+                        raise RuntimeError(last_error)
+                    cache_response(prompt, cache_model_id, content)
+                    return content
+        except (aiohttp.ClientError, asyncio.TimeoutError) as exc:
+            last_error = f"{exc.__class__.__name__}: {exc}"
+            if attempt < config.MAX_RETRIES - 1:
                 await asyncio.sleep(2 ** attempt)
                 continue
-            else:
-                logger.error(f"API请求失败: {str(e)}")
-                return None
-        except Exception as e:
-            if attempt < max_retries - 1:
-                logger.warning(f"生成内容时发生错误 (尝试 {attempt + 1}/{max_retries}): {str(e)}")
+            logger.error("Request failed: %s", exc)
+            raise RuntimeError(last_error)
+        except Exception as exc:
+            last_error = f"{exc.__class__.__name__}: {exc}"
+            logger.exception("Unexpected generation error: %s", exc)
+            if attempt < config.MAX_RETRIES - 1:
                 await asyncio.sleep(2 ** attempt)
                 continue
-            else:
-                logger.error(f"生成内容时发生未知错误: {str(e)}")
-                return None
-    
-    return None
+            raise RuntimeError(last_error)
+
+    raise RuntimeError(last_error or "upstream_generation_failed")

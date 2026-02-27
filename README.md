@@ -1,172 +1,89 @@
-# 🤖 AI小说生成器
+﻿# AI Novel Generator
 
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+面向生产的中文小说生成 Web 应用（FastAPI + 可切换 LLM Provider）。
 
-一个基于OpenRouter API的智能小说生成器，支持多种AI模型，具备章节扩写、内容格式化等高级功能。
-![产品图](static/img/product.jpg)
+![产品截图](static/img/product.jpg)
 
-## ✨ 功能特点
+## 本次更新（2026-02）
+- 新增系统设置中心：模型管理、番茄看板、CDP 发布自动化集中管理
+- 新增 Fanqie CDP 能力：连通性检测、立即发布、定时队列、失败重试
+- 新增质量审查：敏感词检测、可读性/连贯性评分、章节钩子检查、标题去重
+- 新增章节工程化能力：分页、目录导航、默认收起、继续续写、批量续写
+- 新增版本安全能力：章节回滚（内容修改前自动快照）
+- 新增多 Provider：OpenRouter / NewAPI / Google 官方 / Claude 官方
+- 修复多处稳定性问题：ASGI 空响应、非 JSON 错误返回、上游空内容诊断
+- UI 重构：更专业化布局与交互反馈（生成过程动态进度）
 
-- 🎯 **智能生成** - 使用免费AI模型生成完整的多章节小说
-- 📝 **章节扩写** - 一键扩写任意章节，丰富故事内容
-- 🎨 **内容格式化** - 自动格式化文本，支持段落分离、对话突出
-- 💾 **智能缓存** - 缓存API响应，提高效率并节省调用次数
-- 🔄 **错误重试** - 自动重试机制，提高服务稳定性
-- 🌐 **现代界面** - 基于Tailwind CSS的美观响应式界面
-- ⚡ **实时更新** - 生成过程实时显示，用户体验流畅
+## 模型使用建议（强烈推荐）
+- 优先使用 `Claude 官方`、`Google 官方`、`OpenAI 系列模型`（可通过 NewAPI/OpenRouter 接入）
+- 长篇正文生成优先选择大上下文模型（如 `claude-3-5-sonnet`、`gemini-1.5-pro`、`gpt-4.1/gpt-4o`）
+- 若出现“内容过短/摘要化”，先切换更强模型，再降低单次目标章节量
 
-## 🚀 快速开始
+## 功能
+- 分步 5 问创作向导
+- 章节生成与单章扩写
+- Provider 切换：OpenRouter / NewAPI(OpenAI 兼容) / Google 官方 / Claude 官方(Anthropic)
+- 模型连通性检测
+- 基础生产能力：限流、并发保护、健康检查、安全响应头、请求追踪
 
-### 方法一：下载可执行程序（推荐）
-
-1. 前往 [Releases](../../releases) 页面
-2. 下载最新版本的可执行文件
-3. 解压并运行 `AI小说生成器.exe`
-4. 在浏览器中访问 `http://localhost:8000`
-
-### 方法二：从源码运行
-
-#### 环境要求
-- Python 3.8+
-- pip
-
-#### 安装步骤
-
-1. **克隆项目**
-```bash
-git clone https://github.com/your-username/ai-novel-generator.git
-cd ai-novel-generator
-```
-
-2. **安装依赖**
+## 快速启动
+1. 安装依赖
 ```bash
 pip install -r requirements.txt
 ```
 
-3. **配置API密钥**
-创建 `.env` 文件：
+2. 配置环境变量
 ```bash
-OPENROUTER_API_KEY=your_api_key_here
+copy .env.example .env
 ```
+至少配置一组可用模型：
+- OpenRouter：`OPENROUTER_API_KEY`
+- 或 NewAPI：`NEWAPI_BASE_URL` + `NEWAPI_API_KEY` + `NEWAPI_MODELS`
+- 或 Google 官方：`GOOGLE_API_KEY` + `GOOGLE_MODELS`
+- 或 Claude 官方：`ANTHROPIC_API_KEY` + `ANTHROPIC_MODELS`
 
-> 💡 获取API密钥：访问 [OpenRouter](https://openrouter.ai/) 注册并获取免费API密钥
-
-4. **启动应用**
+3. 启动
 ```bash
 python app.py
-# 或者使用
-python start_server.py
+```
+访问：`http://localhost:8000`
+
+## 关键接口
+- `GET /healthz` 存活检查
+- `GET /readyz` 就绪检查
+- `GET /models` 可用模型列表
+- `GET /models/health` 模型可用性检测
+- `GET /workflow/questions` 5问模板
+- `POST /generate` 生成/扩写
+
+## 生产配置建议
+- 设置 `SERVICE_API_KEY`，并通过 `x-api-key` 访问敏感接口
+- 设置 `CORS_ORIGINS` 为你的前端域名，不要在生产使用 `*`
+- 按上游限额调小 `MAX_GENERATE_CONCURRENCY` 和 `RATE_LIMIT_PER_MINUTE`
+- 生产部署建议使用反向代理（Nginx/Caddy）和 HTTPS
+
+## NewAPI 示例
+```env
+NEWAPI_BASE_URL=https://your-newapi-domain/v1
+NEWAPI_API_KEY=sk-xxx
+NEWAPI_MODELS=gpt-4o-mini,deepseek-chat
 ```
 
-5. **访问应用**
-在浏览器中打开：`http://localhost:8000`
-
-## 📖 使用指南
-
-### 生成小说
-1. 在左侧面板填写背景故事和特色亮点
-2. 选择小说类型（如：玄幻、都市、科幻等）
-3. 点击"生成结构"按钮
-4. 等待AI生成完整的多章节小说
-
-### 扩写章节
-1. 在生成的小说中，点击任意章节右上角的"扩写"按钮
-2. AI会自动扩写该章节，增加更多细节和对话
-3. 扩写完成后内容会自动更新并格式化
-
-### 管理章节
-- **删除章节**：点击章节右上角的删除按钮
-- **查看字数**：每个章节显示实时字数统计
-
-## 🏗️ 项目结构
-
-```
-ai-novel-generator/
-├── 📁 cache/              # API响应缓存
-├── 📁 logs/               # 应用日志
-├── 📁 static/             # 静态资源
-├── 📁 templates/          # HTML模板
-├── 📁 utils/              # 工具模块
-│   ├── cache.py           # 缓存管理
-│   ├── model_fetcher.py   # 模型获取
-│   └── openrouter_api.py  # API调用
-├── 📄 app.py              # 主应用
-├── 📄 config.py           # 配置文件
-├── 📄 requirements.txt    # 依赖列表
-├── 📄 start_server.py     # 启动脚本
-└── 📄 README.md           # 项目说明
+## Google 官方示例
+```env
+GOOGLE_API_KEY=AIzaSy...
+GOOGLE_MODELS=gemini-1.5-flash,gemini-1.5-pro
+# 可选，默认 https://generativelanguage.googleapis.com/v1beta
+GOOGLE_API_BASE=https://generativelanguage.googleapis.com/v1beta
 ```
 
-## 🔧 配置选项
-
-在 `config.py` 中可以调整以下设置：
-
-- `MAX_TOKENS`: API最大令牌数（默认：4000）
-- `TEMPERATURE`: 生成温度（默认：0.7）
-- `MAX_RETRIES`: 重试次数（默认：3）
-- `CACHE_ENABLED`: 是否启用缓存（默认：True）
-
-## 🧪 测试
-
-项目包含多个测试脚本：
-
-```bash
-# 测试API连接
-python test_api.py
-
-# 测试章节提取
-python test_chapter_extraction.py
-
-# 测试扩写功能
-python test_expand_feature.py
-
-# 测试完整流程
-python test_full_generation.py
+## Claude 官方示例
+```env
+ANTHROPIC_API_KEY=sk-ant-...
+ANTHROPIC_MODELS=claude-3-5-sonnet-20241022,claude-3-5-haiku-20241022
+# 可选，默认 https://api.anthropic.com/v1
+ANTHROPIC_API_BASE=https://api.anthropic.com/v1
 ```
 
-## 🤝 贡献指南
-
-欢迎提交Issue和Pull Request！
-
-1. Fork 本项目
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启Pull Request
-
-## 📝 更新日志
-
-### v1.0.0 (2024-12-XX)
-- ✨ 初始版本发布
-- 🎯 支持多章节小说生成
-- 📝 章节扩写功能
-- 🎨 内容格式化
-- 💾 智能缓存系统
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
-
-## ⚠️ 注意事项
-
-- 需要有效的OpenRouter API密钥
-- 建议使用免费模型以控制成本
-- 生成时间取决于网络状况和模型响应速度
-- 请遵守OpenRouter的使用条款
-
-## 🆘 常见问题
-
-**Q: 如何获取OpenRouter API密钥？**
-A: 访问 [OpenRouter官网](https://openrouter.ai/) 注册账户并在控制台获取API密钥。
-
-**Q: 生成失败怎么办？**
-A: 检查网络连接和API密钥，应用会自动重试失败的请求。
-
-**Q: 可以使用付费模型吗？**
-A: 可以，但需要确保账户有足够余额，建议先使用免费模型测试。
-
----
-
-⭐ 如果这个项目对你有帮助，请给个Star支持一下！
+## 免责声明
+请确保生成内容符合当地法律法规与平台政策。
